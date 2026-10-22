@@ -1,0 +1,389 @@
+<title>Varenne Freeride</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: full-bleed mountain. Mountain view: title and drop list on the left,
+   drop card bottom right. Riding: event top-left, speed top-right, trick feed
+   centre, wipeouts and results as centred plates. One look: dark glass on snow. */
+:root {
+  --ink: #0d1622;
+  --glass: rgba(13, 22, 34, .64);
+  --glass-2: rgba(13, 22, 34, .82);
+  --edge: rgba(214, 228, 245, .16);
+  --snow: #f4f7fb;
+  --mute: #a8b5c6;
+  --bib: #ffd447;
+  --ember: #f2622e;
+  --good: #7be08a;
+  --bad: #ff7a66;
+  --gold: #f3c74a;
+  --silver: #c7d0db;
+  --bronze: #c98a52;
+  --piste-blue: #2f6fd6;
+  --piste-red: #d8322b;
+  --piste-black: #15171a;
+  --display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --gl: max(16px, env(safe-area-inset-left, 0px));
+  --gr: max(16px, env(safe-area-inset-right, 0px));
+  --gt: calc(env(safe-area-inset-top, 0px) + 16px);
+  --gb: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  --r: 6px;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; background: #c9d9ea; color: var(--snow);
+  font-family: var(--body); font-size: 14px; -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  user-select: none; -webkit-user-select: none;
+}
+#app { position: fixed; inset: 0; }
+#c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--bib); outline-offset: 2px; }
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid var(--edge);
+  border-radius: var(--r);
+}
+.kicker { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); font-weight: 700; }
+.num { font-family: var(--display); font-variant-numeric: tabular-nums; }
+.key {
+  display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box;
+  border: 1px solid rgba(244,247,251,.35); border-bottom-width: 2px; border-radius: 4px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .02em; color: var(--snow); background: rgba(255,255,255,.06);
+}
+
+/* Piste grade marks: blue/red squares, black diamond, double black */
+.grade { display: inline-flex; gap: 2px; align-items: center; flex: none; }
+.grade i { width: 12px; height: 12px; display: block; border-radius: 2px; box-shadow: 0 0 0 1.5px rgba(255,255,255,.85); }
+.grade.blue i { background: var(--piste-blue); border-radius: 50%; }
+.grade.red i { background: var(--piste-red); }
+.grade.black i, .grade.xblack i { background: var(--piste-black); transform: rotate(45deg) scale(.82); }
+
+/* ---------- Mountain view ---------- */
+#mapui { position: absolute; inset: 0; pointer-events: none; }
+#mapui > * { pointer-events: auto; }
+.brand { position: absolute; left: var(--gl); top: var(--gt); pointer-events: none !important; }
+.brand h1 {
+  margin: 0; font-family: var(--display); font-weight: 900; font-size: 76px; line-height: .82;
+  letter-spacing: .02em; color: var(--ink); text-transform: uppercase;
+}
+.brand h1 span { display: block; font-size: 30px; font-weight: 800; letter-spacing: .32em; color: var(--ember); margin-top: 6px; }
+.brand p { margin: 10px 0 0; font-size: 13px; color: var(--ink); opacity: .78; max-width: 30ch; line-height: 1.4; font-weight: 700; }
+
+.drops { position: absolute; left: var(--gl); top: calc(var(--gt) + 168px); width: 290px; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+.drops .kicker { padding: 8px 10px 6px; }
+.drop {
+  display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 10px; text-align: left;
+  background: none; border: 0; border-radius: 4px; padding: 9px 10px;
+}
+.drop:hover { background: rgba(255,255,255,.07); }
+.drop[aria-pressed="true"] { background: var(--snow); color: var(--ink); }
+.drop[aria-pressed="true"] .disc { color: #4d5968; }
+.drop .grade { justify-content: center; }
+.drop b { display: block; font-family: var(--display); font-weight: 800; font-size: 21px; letter-spacing: .02em; line-height: 1; text-transform: uppercase; }
+.drop .disc { display: block; font-size: 12px; color: var(--mute); margin-top: 3px; }
+.medal { width: 14px; height: 14px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+.medal.gold { background: var(--gold); } .medal.silver { background: var(--silver); } .medal.bronze { background: var(--bronze); }
+.medal.none { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(168,181,198,.55); }
+.drops .free { padding: 10px 10px 8px; font-size: 12.5px; color: var(--mute); line-height: 1.4; border-top: 1px solid var(--edge); margin-top: 4px; }
+
+.card { position: absolute; right: var(--gr); bottom: var(--gb); width: 380px; padding: 18px 20px 18px; box-sizing: border-box; }
+.card .row { display: flex; align-items: center; gap: 8px; }
+.card h2 { margin: 8px 0 0; font-family: var(--display); font-weight: 900; font-size: 40px; line-height: .95; text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
+.card p { margin: 10px 0 0; line-height: 1.5; color: #d9e2ec; font-size: 14px; }
+.card dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 16px 0 0; padding: 12px 0 0; border-top: 1px solid var(--edge); }
+.card dt { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); font-weight: 700; }
+.card dd { margin: 2px 0 0; font-family: var(--display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.card dd small { font-size: 13px; font-weight: 600; color: var(--mute); margin-left: 1px; }
+.targets { display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap; align-items: center; font-size: 13px; }
+.targets span { display: inline-flex; align-items: center; gap: 6px; font-family: var(--display); font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
+.targets .best { margin-left: auto; color: var(--bib); }
+.go {
+  margin-top: 16px; width: 100%; height: 52px; border: 0; border-radius: 4px; background: var(--bib); color: var(--ink);
+  font-family: var(--display); font-weight: 900; font-size: 26px; letter-spacing: .08em; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.go:hover { background: #ffe07a; }
+.go .key { color: var(--ink); border-color: rgba(13,22,34,.4); background: rgba(13,22,34,.08); }
+
+.corner { position: absolute; right: var(--gr); top: var(--gt); display: flex; gap: 8px; }
+.ib { height: 38px; padding: 0 12px; border-radius: var(--r); display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+.ib svg { width: 18px; height: 18px; }
+.ib:hover { background: var(--glass-2); }
+
+#markers { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.mk { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); pointer-events: auto; background: none; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+.mk .tag {
+  display: flex; align-items: center; gap: 7px; padding: 5px 9px 5px 7px; border-radius: 4px; background: var(--glass-2);
+  border: 1px solid var(--edge); font-family: var(--display); font-weight: 800; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+}
+.mk .stem { width: 2px; height: 26px; background: linear-gradient(var(--snow), rgba(244,247,251,0)); }
+.mk.on .tag { background: var(--bib); color: var(--ink); border-color: var(--bib); }
+.mk.free .tag { background: var(--ember); border-color: var(--ember); }
+
+/* ---------- Ride HUD ---------- */
+#hud { position: absolute; inset: 0; pointer-events: none; }
+.ev { position: absolute; left: var(--gl); top: var(--gt); padding: 12px 16px 12px; min-width: 210px; }
+.ev .name { font-family: var(--display); font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: .03em; display: flex; align-items: center; gap: 8px; }
+.ev .big { font-family: var(--display); font-weight: 900; font-size: 46px; line-height: 1; margin-top: 4px; font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.ev .sub { display: flex; gap: 14px; margin-top: 6px; font-size: 12.5px; color: var(--mute); font-variant-numeric: tabular-nums; }
+.ev .sub b { color: var(--snow); font-weight: 700; }
+.ev .pen { color: var(--bad); }
+.spd { position: absolute; right: var(--gr); top: var(--gt); text-align: right; padding: 10px 16px 12px; min-width: 150px; }
+.spd .big { font-family: var(--display); font-weight: 900; font-size: 64px; line-height: .9; font-variant-numeric: tabular-nums; }
+.spd .big small { font-size: 18px; font-weight: 800; color: var(--mute); margin-left: 4px; letter-spacing: .06em; }
+.spd .sub { font-size: 12.5px; color: var(--mute); margin-top: 6px; font-variant-numeric: tabular-nums; display: flex; justify-content: flex-end; gap: 12px; }
+.spd .sub b { color: var(--snow); }
+.spd .prox { color: var(--bib); }
+
+.feed { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; width: min(90vw, 640px); }
+.feed .it { font-family: var(--display); font-weight: 900; font-size: 34px; text-transform: uppercase; letter-spacing: .03em; text-shadow: 0 2px 14px rgba(13,22,34,.55), 0 1px 2px rgba(13,22,34,.6); text-align: center; animation: pop .26s cubic-bezier(.2,1.4,.4,1); }
+.feed .it em { font-style: normal; color: var(--bib); margin-left: 10px; }
+.feed .it.good { color: var(--good); font-size: 24px; }
+.feed .it.bad { color: var(--bad); font-size: 24px; }
+.feed .it.out { opacity: 0; transition: opacity .4s; }
+.combo { position: absolute; left: 50%; top: calc(22% - 54px); transform: translateX(-50%); font-family: var(--display); font-weight: 900; font-size: 26px; color: var(--bib); text-shadow: 0 2px 12px rgba(13,22,34,.5); font-variant-numeric: tabular-nums; }
+.combo small { color: var(--snow); font-size: 18px; margin-left: 8px; }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.charge { position: absolute; left: 50%; bottom: calc(var(--gb) + 84px); transform: translateX(-50%); width: 120px; height: 5px; border-radius: 3px; background: rgba(13,22,34,.45); overflow: hidden; }
+.charge i { display: block; height: 100%; width: 0; background: var(--bib); }
+
+.prompt { position: absolute; left: 50%; bottom: calc(var(--gb) + 24px); transform: translateX(-50%); padding: 9px 14px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 13px; max-width: calc(100% - 32px); box-sizing: border-box; }
+.prompt span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+#tgt { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+#tgt .dia { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; border: 3px solid var(--bib); transform: rotate(45deg); box-sizing: border-box; box-shadow: 0 0 0 1px rgba(13,22,34,.4); }
+#tgt .lbl { position: absolute; left: 18px; top: -10px; font-family: var(--display); font-weight: 800; font-size: 15px; color: var(--bib); text-shadow: 0 1px 6px rgba(13,22,34,.7); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#tgt.edge .dia { border-radius: 2px; background: var(--bib); }
+
+.plate { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; padding: 22px 28px; width: min(440px, calc(100% - 32px)); box-sizing: border-box; }
+.plate h2 { margin: 6px 0 0; font-family: var(--display); font-weight: 900; font-size: 54px; line-height: .95; text-transform: uppercase; letter-spacing: .02em; }
+.plate .acts { display: flex; gap: 8px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.btn {
+  height: 42px; padding: 0 16px; border-radius: 4px; border: 1px solid var(--edge); background: rgba(255,255,255,.06);
+  font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:hover { background: rgba(255,255,255,.14); }
+.btn.primary { background: var(--bib); color: var(--ink); border-color: var(--bib); }
+.btn.primary:hover { background: #ffe07a; }
+.btn.primary .key { color: var(--ink); border-color: rgba(13,22,34,.4); background: rgba(13,22,34,.08); }
+#wipe { top: 34%; padding: 16px 24px; }
+#wipe h2 { font-size: 44px; color: var(--bad); }
+#wipe p { margin: 8px 0 0; color: var(--mute); display: flex; justify-content: center; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+#results h2 { font-size: 60px; }
+.medalbig { width: 74px; height: 74px; margin: 6px auto 0; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 15px; letter-spacing: .1em; color: var(--ink); text-transform: uppercase; box-shadow: inset 0 0 0 4px rgba(0,0,0,.18), 0 6px 24px rgba(0,0,0,.35); }
+.medalbig.gold { background: var(--gold); } .medalbig.silver { background: var(--silver); } .medalbig.bronze { background: var(--bronze); }
+.medalbig.none { background: rgba(255,255,255,.08); color: var(--mute); box-shadow: inset 0 0 0 2px var(--edge); }
+.res-main { font-family: var(--display); font-weight: 900; font-size: 64px; line-height: 1; margin-top: 12px; font-variant-numeric: tabular-nums; }
+.res-best { color: var(--bib); font-weight: 700; margin-top: 4px; min-height: 20px; }
+.res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--edge); text-align: left; }
+.res-grid dt { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); font-weight: 700; }
+.res-grid dd { margin: 2px 0 0; font-family: var(--display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.res-targets { display: flex; gap: 14px; justify-content: center; margin-top: 12px; font-family: var(--display); font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums; }
+.res-targets span { display: inline-flex; gap: 6px; align-items: center; }
+
+/* Help / pause */
+#help { width: min(720px, calc(100% - 32px)); text-align: left; max-height: calc(100% - 48px); overflow: auto; }
+#help h2 { font-size: 40px; }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 14px; }
+.cols h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: .04em; color: var(--bib); }
+.cols dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 7px 10px; align-items: center; font-size: 13.5px; }
+.cols dd { margin: 0; color: #d9e2ec; }
+.cols dt { display: flex; gap: 3px; }
+.help-foot { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--edge); color: var(--mute); font-size: 13px; line-height: 1.5; }
+#pause h2 { font-size: 48px; }
+#pause .acts { flex-direction: column; align-items: stretch; }
+#pause .btn { justify-content: space-between; }
+
+.scrim { position: absolute; inset: 0; background: rgba(13,22,34,.38); }
+
+/* Touch controls */
+#touch { position: absolute; inset: 0; pointer-events: none; }
+#stick { position: absolute; left: calc(var(--gl) + 10px); bottom: calc(var(--gb) + 10px); width: 132px; height: 132px; border-radius: 50%; background: rgba(13,22,34,.28); border: 1.5px solid rgba(244,247,251,.35); pointer-events: auto; touch-action: none; }
+#stick i { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px; border-radius: 50%; background: rgba(244,247,251,.75); }
+.tbtns { position: absolute; right: calc(var(--gr) + 6px); bottom: calc(var(--gb) + 10px); display: grid; grid-template-columns: repeat(2, 64px); gap: 10px; pointer-events: auto; }
+.tb { width: 64px; height: 64px; border-radius: 50%; border: 1.5px solid rgba(244,247,251,.4); background: rgba(13,22,34,.35); font-family: var(--display); font-weight: 800; font-size: 14px; letter-spacing: .05em; text-transform: uppercase; touch-action: none; }
+.tb.main { background: rgba(255,212,71,.85); color: var(--ink); border-color: var(--bib); }
+.tb:active, .tb.on { background: var(--snow); color: var(--ink); }
+.tmap { position: absolute; right: var(--gr); top: calc(var(--gt) + 112px); pointer-events: auto; }
+
+/* Loading */
+.loading { position: absolute; inset: 0; display: grid; place-items: center; background: #dfe8f2; color: var(--ink); transition: opacity .6s; z-index: 5; }
+.loading .in { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; width: min(320px, calc(100% - 32px)); }
+.loading h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: 64px; line-height: .85; text-transform: uppercase; }
+.loading .bar { width: 100%; height: 4px; background: rgba(13,22,34,.12); border-radius: 2px; overflow: hidden; }
+.loading .bar i { display: block; height: 100%; width: 4%; background: var(--ember); transition: width .25s; }
+.loading .msg { font-size: 13px; font-weight: 700; opacity: .75; }
+.loading.done { opacity: 0; pointer-events: none; }
+.err { line-height: 1.5; }
+
+.fade { position: absolute; inset: 0; background: #f4f7fb; opacity: 0; pointer-events: none; transition: opacity .35s; }
+.fade.on { opacity: 1; }
+
+@media (max-width: 900px) {
+  .brand h1 { font-size: 54px; }
+  .brand h1 span { font-size: 22px; }
+  .drops { top: calc(var(--gt) + 130px); width: 250px; }
+  .card { width: 340px; }
+}
+@media (max-width: 680px) {
+  .brand h1 { font-size: 40px; }
+  .brand h1 span { font-size: 16px; letter-spacing: .26em; margin-top: 3px; }
+  .brand p { display: none; }
+  .drops {
+    top: calc(var(--gt) + 72px); left: 0; right: 0; width: auto; flex-direction: row; overflow-x: auto; padding: 0 var(--gr) 4px var(--gl);
+    background: none; border: 0; backdrop-filter: none; -webkit-backdrop-filter: none; gap: 6px; scrollbar-width: none;
+  }
+  .drops::-webkit-scrollbar { display: none; }
+  .drops .kicker, .drops .free { display: none; }
+  .drop { flex: none; background: var(--glass-2); border: 1px solid var(--edge); grid-template-columns: 18px auto auto; padding: 7px 10px; gap: 8px; }
+  .drop b { font-size: 16px; }
+  .drop .disc { display: none; }
+  .card { left: var(--gl); right: var(--gr); width: auto; padding: 14px 16px; }
+  .card h2 { font-size: 30px; }
+  .card p { font-size: 13px; }
+  .card dd { font-size: 18px; }
+  .go { height: 46px; font-size: 22px; }
+  .go .key { display: none; }
+  .corner .lbl { display: none; }
+  .ev { min-width: 0; padding: 8px 12px; }
+  .ev .name { font-size: 15px; }
+  .ev .big { font-size: 32px; }
+  .spd { min-width: 0; padding: 8px 12px; }
+  .spd .big { font-size: 40px; }
+  .feed .it { font-size: 24px; }
+  .feed .it.good, .feed .it.bad { font-size: 18px; }
+  .prompt { display: none; }
+  .cols { grid-template-columns: 1fr; }
+  .plate h2 { font-size: 40px; }
+  #results h2 { font-size: 42px; }
+  .res-main { font-size: 48px; }
+  .mk .tag { font-size: 12px; padding: 3px 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .feed .it { animation: none; }
+  .fade, .loading { transition: none; }
+}
+</style>
+<!--BODY-->
+<div id="app">
+  <canvas id="c" tabindex="0" aria-label="The mountain. In mountain view, drag to look around and click a drop zone or any slope to ride from there."></canvas>
+  <div id="markers"></div>
+
+  <section id="mapui" hidden>
+    <header class="brand">
+      <h1>Varenne<span>Freeride</span></h1>
+      <p>Pointe Varenne and its five drop zones. Pick a line, or click any slope to ride from there.</p>
+    </header>
+    <nav class="drops glass" id="drops" aria-label="Drop zones"><div class="kicker">Drop zones</div></nav>
+    <section class="card glass" id="card" aria-live="polite"></section>
+    <div class="corner">
+      <button class="ib glass" id="b-help" title="Controls (H)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h1M9.5 10h1M13 10h1M16.5 10h1M7 14h10"/></svg><span class="lbl">Controls</span></button>
+      <button class="ib glass" id="b-sound" aria-pressed="true" title="Sound (N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg><span class="lbl">Sound</span></button>
+    </div>
+  </section>
+
+  <section id="hud" hidden>
+    <div class="ev glass" id="ev">
+      <div class="name" id="ev-name"></div>
+      <div class="big" id="ev-big">0</div>
+      <div class="sub" id="ev-sub"></div>
+    </div>
+    <div class="spd glass">
+      <div class="big"><span id="spd">0</span><small>km/h</small></div>
+      <div class="sub" id="spd-sub"></div>
+    </div>
+    <div class="combo" id="combo" hidden></div>
+    <div class="feed" id="feed" aria-live="polite"></div>
+    <div class="charge" id="charge" hidden><i></i></div>
+    <div id="tgt" hidden><div class="dia"></div><div class="lbl" id="tgt-lbl"></div></div>
+    <div class="prompt glass" id="prompt"></div>
+    <section id="touch" hidden>
+      <div id="stick"><i></i></div>
+      <div class="tbtns">
+        <button class="tb" data-t="grab">Grab</button>
+        <button class="tb" data-t="wing">Wing</button>
+        <button class="tb" data-t="rewind">Back</button>
+        <button class="tb main" data-t="jump">Jump</button>
+      </div>
+      <button class="ib glass tmap" data-t="pause">Menu</button>
+    </section>
+    <div class="plate glass" id="wipe" hidden>
+      <div class="kicker">Wipeout</div>
+      <h2 id="wipe-why">Hit a tree</h2>
+      <p id="wipe-hint"></p>
+    </div>
+  </section>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <section class="plate glass" id="results" hidden aria-live="polite"></section>
+  <section class="plate glass" id="pause" hidden>
+    <div class="kicker">Paused</div>
+    <h2 id="pause-title">Paused</h2>
+    <div class="acts">
+      <button class="btn primary" data-a="resume">Resume <span class="key">Esc</span></button>
+      <button class="btn" data-a="restart">Restart from the top <span class="key">Enter</span></button>
+      <button class="btn" data-a="map">Mountain view <span class="key">M</span></button>
+      <button class="btn" data-a="help">Controls <span class="key">H</span></button>
+    </div>
+  </section>
+  <section class="plate glass" id="help" hidden>
+    <div class="kicker">How to ride</div>
+    <h2>Controls</h2>
+    <div class="cols">
+      <div>
+        <h3>On the snow</h3>
+        <dl>
+          <dt><span class="key">A</span><span class="key">D</span></dt><dd>Carve left and right</dd>
+          <dt><span class="key">W</span></dt><dd>Tuck for speed, skate on the flat</dd>
+          <dt><span class="key">S</span></dt><dd>Brake with a hockey stop</dd>
+          <dt><span class="key">Space</span></dt><dd>Hold to load, release to jump</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>In the air</h3>
+        <dl>
+          <dt><span class="key">A</span><span class="key">D</span></dt><dd>Spin</dd>
+          <dt><span class="key">W</span><span class="key">S</span></dt><dd>Front flip, back flip</dd>
+          <dt><span class="key">Shift</span></dt><dd>Grab (W/S for Japan or tail). Let go before you land</dd>
+          <dt><span class="key">Q</span></dt><dd>Open the wingsuit when you're high above the snow</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>Wingsuit</h3>
+        <dl>
+          <dt><span class="key">A</span><span class="key">D</span></dt><dd>Bank</dd>
+          <dt><span class="key">W</span></dt><dd>Dive for speed</dd>
+          <dt><span class="key">S</span></dt><dd>Flare to slow down and stretch the glide</dd>
+          <dt><span class="key">Space</span></dt><dd>Open the canopy and land on your skis</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="help-foot">
+      <span class="key">R</span> rewinds 3 seconds, as often as you like. <span class="key">C</span> switches camera, <span class="key">M</span> opens the mountain view, <span class="key">Esc</span> pauses.
+      Land with your skis lined up with your direction of travel; switch landings count. A gamepad works too: left stick, A to jump, X to grab, Y for the wingsuit, B to rewind.
+    </div>
+    <div class="acts"><button class="btn primary" data-a="close-help">Got it <span class="key">Esc</span></button></div>
+  </section>
+
+  <div class="fade" id="fade"></div>
+  <div class="loading" id="loading">
+    <div class="in">
+      <h1>Varenne</h1>
+      <div class="bar"><i id="load-bar"></i></div>
+      <div class="msg" id="load-msg">Raising the mountain…</div>
+    </div>
+  </div>
+</div>
+<!--SCRIPT-->
